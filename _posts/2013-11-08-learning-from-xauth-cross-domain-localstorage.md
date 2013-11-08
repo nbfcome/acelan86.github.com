@@ -22,3 +22,40 @@ Since the primary limitation is the same-origin policy of localStorage, circumve
 * `Server Page` – there’s a page that’s hosted at http://xauth.org/server.html that acts as the “server”. It’s only job is to handle requests for localStorage. The page is as small as possible with minified JavaScript, but you can see the full source at GitHub.
 * `JavaScript Library` – a single small script file contains the JavaScript API that exposes the functionality. This API needs to be included in your page. When you make a request through the API for the first time, it creates an iframe and points it to the server page. Once loaded, requests for data are passed through the iframe to the server page via cross-document messaging. The full source is also available on GitHub.
 Although the goal of XAuth is to provide authentication services, this same basic technique can be applied to any data.
+
+example:
+
+    (function(){
+
+        //allowed domains
+        var whitelist = ["foo.example.com", "www.example.com"];
+
+        function verifyOrigin(origin){
+            var domain = origin.replace(/^https?:\/\/|:\d{1,4}$/g, "").toLowerCase(),
+                i = 0,
+                len = whitelist.length;
+
+            while(i < len){
+                if (whitelist[i] == domain){
+                    return true;
+                }
+                i++;
+            }
+
+            return false;
+        }
+
+        function handleRequest(event){
+            if (verifyOrigin(event.origin)){
+                var data = JSON.parse(event.data),
+                    value = localStorage.getItem(data.key);
+                event.source.postMessage(JSON.stringify({id: data.id, key:data.key, value: value}), event.origin);
+            }
+        }
+
+        if(window.addEventListener){
+            window.addEventListener("message", handleRequest, false);
+        } else if (window.attachEvent){
+            window.attachEvent("onmessage", handleRequest);
+        }
+    })();
