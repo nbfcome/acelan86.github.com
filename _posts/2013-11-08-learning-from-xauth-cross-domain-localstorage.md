@@ -9,12 +9,15 @@ tags: []
 
 I typically don’t get too excited when new open source JavaScript utilities are released. It may be the cynic in me, but generally I feel like there’s very little new under the sun that’s actually useful. Most of these utilities are knockoffs of other ones or are too large to be practically useful. When I first came across XAuth, though, a little tingly feeling of excitement swept over me. And the first coherent thought I had while looking at the source: this is absolutely brilliant.
 
-## What is XAuth?
+当一个新的开源Javascript工具发布的时候，我通常不会太激动。这可能是因为我比较愤世嫉俗，但总得来说我。这些工具中有很大一部分。当我偶然看到XAuth，一丝小激动划过我的心里。当细读源码:这是绝对出色的。
 
-I don’t want to spend too much time explaining exactly what XAuth is, since you can read the documentation yourself to find the nitty gritty details. In short, XAuth is a way to share third-party authentication information in the browser. Instead of every application needing to go through the authorization process for a service, XAuth is used to store this information in your browser and make it available to web developers. That means a site that can serve you a more relevant experience when you’re signed into Yahoo! doesn’t need to make any extra requests to determine if you’re signed in. You can read more about XAuth over on the Meebo blog.
+## 什么是XAuth？
 
-## The cool part
+我不想花大量时间去解释什么是XAuth，而应该是你自己读它的文档去找到具体细节。简而言之，XAuth是一种在浏览器之间分享第三方认证信息的方式。代替每个应用需要通过一个服务处理认证信息，XAuth用于在你的浏览器中存储这些信息并且使它们能被web开发者访问。这意味着一个能够对你提供相关体验服务的站点当你登录Yahoo！之后不需要做任何额外的请求去判断你是否已经登录。你可以从Meebo的博客中了解到更多关于XAuth的信息。
 
+## 很酷的部分
+
+这篇文章写了很少关于XAuth的使用而更多的是关于它的实现。Meebo的聪明的做法本质上是再浏览器中创建了一个数据服务。
 This post is really less about the usage of XAuth and more about the implementation. What the smart folks at Meebo did is essentially create a data server in the browser. The way that they did this is by combining the power of cross-document messaging and localStorage. Since localStorage is tied to a single origin, you can’t get direct access to data that was stored by a different domain. This makes the sharing of data across domains strictly impossible when using just this API (note the difference with cookies: you can specify which subdomains may access the data but not completely different domains).
 
 Since the primary limitation is the same-origin policy of localStorage, circumventing that security issue is the way towards data freedom. The cross-document messaging functionality is designed to allow data sharing between documents from different domains while still being secure. The two-part technique used in XAuth is incredibly simple and consists of:
