@@ -19,15 +19,24 @@ I typically don’t get too excited when new open source JavaScript utilities ar
 
 这篇文章写了很少关于XAuth的使用而更多的是关于它的实现。Meebo哪些聪明的人所做的本质上是在浏览器中创建了一个数据服务。他们通过结合corss-document messaging和localStorage的功能来做到这些。由于localStorage是同源的，因此你不能直接对存储在不同域下的数据进行访问。这使得仅靠使用localStorage的这些API不可能进行跨域间的数据分享（注意cookies不一样：你能够指定子域可以被访问但完全不同的域不行）。
 
+localStorage的主要限制是同源策略，绕过安全问题是为了数据自由的方法。cross-document messaging功能就是为了在保证安全的情况下允许不同域间不同文档共享数据而设计的。这两部分技术被难以置信的简单的应用于XAuth，包括以下部分：
 
-Since the primary limitation is the same-origin policy of localStorage, circumventing that security issue is the way towards data freedom. The cross-document messaging functionality is designed to allow data sharing between documents from different domains while still being secure. The two-part technique used in XAuth is incredibly simple and consists of:
 
-* `Server Page` – there’s a page that’s hosted at http://xauth.org/server.html that acts as the “server”. It’s only job is to handle requests for localStorage. The page is as small as possible with minified JavaScript, but you can see the full source at GitHub.
-* `JavaScript Library` – a single small script file contains the JavaScript API that exposes the functionality. This API needs to be included in your page. When you make a request through the API for the first time, it creates an iframe and points it to the server page. Once loaded, requests for data are passed through the iframe to the server page via cross-document messaging. The full source is also available on GitHub.
-Although the goal of XAuth is to provide authentication services, this same basic technique can be applied to any data.
+* **Server Page** – 有一个在主机http://xauth.org/server.html下的页面，它扮演“server”的角色。它唯一的任务是管理localStorage的请求。这个页面的javascript被压缩成最小，但你可以在GitHub中看到全部的源代码。
+* **JavaScript Library** – 一个小的脚本文件包含暴露的Javascript API。这个API需要被包含到你的页面中，当你通过第一次通过API创建一个请求时，它会通过cross-document messaging创建一个iframe并且把它指向server page。一旦iframe被加载，对数据的请求使用cross-domain messaging，通过iframe被传递到server page。完整的源代码也放在GitHub中。
 
-example:
+XAuth的目的是提供服务认证，因此相同的技术也可以被延伸到任何数据中。
 
+
+## 主要技术
+
+假设你的页面在www.example.com上，并且你想要获取存储在foo.example.com的localStorage上的某些信息。第一步是创建一个iframen指向foo.example.com上的一个页面，它扮演data server的角色。这个页面的任务是管理对数据的请求并且传回数据。以下是一个简单的例子:
+
+    <!doctype html>
+    <!-- Copyright 2010 Nicholas C. Zakas. All rights reserved. BSD Licensed. -->
+    <html>
+    <body>
+    <script type="text/javascript">
     (function(){
 
         //allowed domains
@@ -62,3 +71,17 @@ example:
             window.attachEvent("onmessage", handleRequest);
         }
     })();
+    </script>
+    </body>
+    </html>
+
+
+这是我建议的最小实现。关键函数是`handleRequest()`, 它在window的message事件触发的时候被调用。因为我没有使用任何Javascript库，我需要用手工检查方式来使用合适的方法挂接事件句柄。
+
+在`handleRequest()`内部，第一步是验证请求来源。这是至关重要的一步以确保只有某些人能够创建iframe，并指向这些文件，来获取你的localStorage的信息。事件对象包含一个属性称为origin，指定了协议，域和（可选的）端口号，它是请求的来源（比如，“http://www.example.com”）；这个属性不包含任何path和请求参数信息。`verifyOraigin()`函数简单的检查域白名单确保origin属性在白名单中。它通过使用正则表达式去除协议和端口然后转换成小写字符来和白名单数组中的domain进行匹配。
+
+如果origin是可靠的，那么event.data属性被作为JSON对象传递并且key属性被作为key从localStorage中读取数据。然后一个信息被作为包含唯一ID的JSON对象传回
+
+If the origin is verified then the event.data property is parsed as a JSON object and the key property is used as the key to read from localStorage. A message is then sent back as a JSON object that contains the unique ID that was passed initially, the key name, and the value; this is done using postMessage() on event.source, which is a proxy for the window object that sent the request. The first argument is the JSON-serialized message containing the value from localStorage and the second is the origin to which the message should be delivered. Even though the second argument is optional, it’s good practice to include the destination origin as an extra measure of defense against cross-site scripting (XSS) attacks. In this case, the original origin is passed.
+
+For the page that wants to read data from the iframe, you need to create the iframe server and handle message passing. The following constructor creates an object to manage this process:
