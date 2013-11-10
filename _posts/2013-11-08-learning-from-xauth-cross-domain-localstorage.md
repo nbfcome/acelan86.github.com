@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Learning from XAuth: Cross domain localStorage"
+title: "XAuth: 跨域本地存储"
 description: ""
 category: ""
 tags: []
@@ -17,8 +17,8 @@ I typically don’t get too excited when new open source JavaScript utilities ar
 
 ## 很酷的部分
 
-这篇文章写了很少关于XAuth的使用而更多的是关于它的实现。Meebo的聪明的做法本质上是再浏览器中创建了一个数据服务。
-This post is really less about the usage of XAuth and more about the implementation. What the smart folks at Meebo did is essentially create a data server in the browser. The way that they did this is by combining the power of cross-document messaging and localStorage. Since localStorage is tied to a single origin, you can’t get direct access to data that was stored by a different domain. This makes the sharing of data across domains strictly impossible when using just this API (note the difference with cookies: you can specify which subdomains may access the data but not completely different domains).
+这篇文章写了很少关于XAuth的使用而更多的是关于它的实现。Meebo哪些聪明的人所做的本质上是在浏览器中创建了一个数据服务。他们通过结合corss-document messaging和localStorage的功能来做到这些。由于localStorage是同源的，因此你不能直接对存储在不同域下的数据进行访问。这使得仅靠使用localStorage的这些API不可能进行跨域间的数据分享（注意cookies不一样：你能够指定子域可以被访问但完全不同的域不行）。
+
 
 Since the primary limitation is the same-origin policy of localStorage, circumventing that security issue is the way towards data freedom. The cross-document messaging functionality is designed to allow data sharing between documents from different domains while still being secure. The two-part technique used in XAuth is incredibly simple and consists of:
 
