@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "run script in innerHTML"
+title: "让innerHTML的脚本也能正常执行"
 description: ""
 category: ""
 tags: []
@@ -12,15 +12,14 @@ tags: []
 
 有时候，我们想要这么做
 
-example:
-
+{% highlight javascript %}
     var content = [
         '<div>xxx</div>',
         '<script>alert("aaa");</script>'
     ].join('');
 
     dom.innerHTML = content;
-
+{% endhighlight %}
 
 但是，事与愿违，innerHTML里面的脚本文件通常是不会执行的
 
@@ -38,18 +37,16 @@ example:
 因为结论4，我们可以先把content的内容innerHTML到dom中，这时候所有的script都存在，除了2的情况
 为了保证2的情况也可以，我们可以这么做
 
-example:
-    
+{% highlight javascript %}
     function fill(dom, content) {
         dom.innerHTML = '<i>hack ie content firstchild is script node</i>' + content;
         ...
     }
-
+{% endhighlight %}
 
 然后获取所有的script节点
 
-example:
-
+{% highlight javascript %}
     function fill(dom, content) {
         dom.innerHTML = '<i>hack ie content firstchild is script node</i>' + content;
 
@@ -57,12 +54,11 @@ example:
 
         ...
     }
-
+{% endhighlight %}
 
 接下来，只要将所有的script按照类型进行解析
 
-example:
-
+{% highlight javascript %}
     function fill(dom, content) {
         dom.innerHTML = '<i>hack ie content firstchild is script node</i>' + content;
 
@@ -85,12 +81,11 @@ example:
             }
         }
     }
-
+{% endhighlight %}
 
 这里的evalGlobalScript方法如下，因为eval的代码在严格模式下的作用域跟非严格模式下有区别，因此需要用以下的方法来确保是在global作用域执行
 
-example:
-
+{% highlight javascript %}
     function evalGlobalScript(data) {
         if (data && /\S/.test(data)) {
             (window.execScript || function (data) {
@@ -98,12 +93,11 @@ example:
             })(data);
         }
     }
-
+{% endhighlight %}
 
 最后，请记住结论1， ie6下defer的问题，如果不处理，所有的defer代码会被执行2遍，因此，上面的代码变成
 
-example:
-
+{% highlight javascript %}
     function fill(dom, content) {
         dom.innerHTML = '<i>hack ie content firstchild is script node</i>' + content;
 
@@ -130,6 +124,7 @@ example:
             }
         }
     }
+{% endhighlight %}
 
 
 # 需要注意的问题

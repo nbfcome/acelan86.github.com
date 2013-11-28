@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "auto ssh, sz, rz on iterms"
+title: "在iterms中配置支持rz, sz的自动登录ssh脚本"
 description: ""
 category: ""
 tags: []
