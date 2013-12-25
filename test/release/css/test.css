@@ -1,0 +1,44 @@
+.ring {
+  width: 300px;
+  height: 300px;
+  position: absolute;
+  background: #ccc;
+  border-radius: 999px;
+  -webkit-animation-name: rotateIn;
+  -webkit-animation-duration: 10s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear; }
+
+.ring:before {
+  content: ' ';
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  border: 20px solid #ffcc00;
+  position: absolute;
+  clip: rect(0px, 300px, 300px, 150px); }
+
+.ring:after {
+  content: ' ';
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  border: 20px solid #ffcc00;
+  position: absolute;
+  clip: rect(0px, 300px, 300px, 150px);
+  -webkit-transform: rotate(130deg); }
+
+.ring-cnt {
+  width: 260px;
+  height: 260px;
+  background: #fff;
+  border-radius: 999px;
+  position: absolute;
+  margin: 20px; }
+
+@-webkit-keyframes rotateIn {
+  0% {
+    -webkit-transform: rotate(0deg); }
+
+  100% {
+    -webkit-transform: rotate(-360deg); } }

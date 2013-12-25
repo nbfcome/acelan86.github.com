@@ -1,0 +1,43 @@
+@charset "UTF-8";
+/**
+ * 生成一个旋转有缺口的圆环
+ * @author acelan(xiaobin8[at]staff.sina.com.cn)
+ */
+/* 环直径 */
+/* 环粗细 */
+/* 环颜色 */
+/* 缺口角度 */
+/* 环的class */
+/* 环转动动画时长 */
+/* 旋转方法 */
+@-webkit-keyframes ringRotate {
+  0% {
+    -webkit-transform: rotate(0deg); }
+
+  100% {
+    -webkit-transform: rotate(-360deg); } }
+
+/* 生成转动环样式 start */
+.ring100px {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  -webkit-animation-name: ringRotate;
+  -webkit-animation-duration: 3s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear; }
+
+.ring100px:before,
+.ring100px:after {
+  content: ' ';
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  border: 20px solid #ffcc00;
+  position: absolute;
+  clip: rect(0, 50px, 100px, 0); }
+
+.ring100px:after {
+  -webkit-transform: rotate(90deg); }
+
+/* 生成转动环样式 end */
